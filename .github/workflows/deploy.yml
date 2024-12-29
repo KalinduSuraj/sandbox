@@ -3,7 +3,7 @@ name: Backend CI/CD
 on:
   push:
     branches:
-      - test-backend-ci-cd
+      - test
 
 jobs:
   deploy:
@@ -14,9 +14,13 @@ jobs:
     - name: Checkout Repository
       uses: actions/checkout@v3
 
+    # Debug Maven Wrapper Permissions
+    - name: Debug Maven Wrapper Permissions
+      run: ls -l mvnw
+
     # Make Maven Wrapper Executable
     - name: Make Maven Wrapper Executable
-      run: chmod +x ./mvnw
+      run: chmod +x mvnw
 
     # Set up Java environment
     - name: Set up JDK
@@ -32,12 +36,18 @@ jobs:
     # Deploy to AWS EC2
     - name: Deploy to AWS EC2
       env:
-        HOST: ${{ secrets.HOST }} # Replace with your public IP or DNS
-        USER: ${{ secrets.USER }}       # Replace with your EC2 username
+        HOST: ${{ secrets.HOST }}       # Host stored as GitHub Secret
+        USER: ${{ secrets.USER }}       # User stored as GitHub Secret
         KEY: ${{ secrets.AWS_PRIVATE_KEY }}
       run: |
+        # Copy the JAR file to the EC2 instance
         scp -o StrictHostKeyChecking=no -i "$KEY" target/*.jar $USER@$HOST:/home/$USER/eventFlowBackend.jar
+        
+        # SSH into the instance and deploy the application
         ssh -o StrictHostKeyChecking=no -i "$KEY" $USER@$HOST << EOF
+          # Kill any running instance of the application
           pkill -f eventFlowBackend.jar || true
+          
+          # Start the new application in the background
           nohup java -jar /home/$USER/eventFlowBackend.jar > /home/$USER/eventFlowBackend.log 2>&1 &
         EOF
