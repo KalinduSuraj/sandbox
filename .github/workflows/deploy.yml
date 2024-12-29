@@ -75,3 +75,4 @@ jobs:
           pkill -f eventFlowBackend.jar || true
           nohup java -jar /home/$USER/eventFlowBackend.jar > /home/$USER/eventFlowBackend.log 2>&1 &
         EOF
+
