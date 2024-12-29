@@ -44,7 +44,7 @@ jobs:
       env:
         HOST: ${{ secrets.HOST }}
         USER: ${{ secrets.USER }}
-      run: ssh -i "private_key.pem" ubuntu@ec2-13-49-75-219.eu-north-1.compute.amazonaws.com echo "SSH connection successful"
+      run: ssh -i private_key.pem ubuntu@ec2-13-49-75-219.eu-north-1.compute.amazonaws.com echo "SSH connection successful"
 
     # Deploy to AWS EC2
     - name: Deploy to AWS EC2
