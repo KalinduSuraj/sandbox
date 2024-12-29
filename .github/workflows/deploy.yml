@@ -36,7 +36,7 @@ jobs:
     # Deploy to AWS EC2
     - name: Deploy to AWS EC2
       env:
-        HOST: ${{ secrets.HOST }}       # Host stored as GitHub Secret
+        HOST: ${{ secrets.HOST_IP }}       # Host stored as GitHub Secret
         USER: ${{ secrets.USER }}       # User stored as GitHub Secret
         KEY: ${{ secrets.AWS_PRIVATE_KEY }}
       run: |
