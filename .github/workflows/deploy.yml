@@ -33,21 +33,23 @@ jobs:
     - name: Build Backend
       run: ./mvnw clean package -DskipTests
 
+    # Debug SSH Connection
+    - name: Debug SSH Connection
+      env:
+        HOST: ${{ secrets.HOST }}
+        USER: ${{ secrets.USER }}
+        KEY: ${{ secrets.AWS_PRIVATE_KEY }}
+      run: ssh -i "$KEY" -o StrictHostKeyChecking=no $USER@$HOST echo "SSH connection successful"
+
     # Deploy to AWS EC2
     - name: Deploy to AWS EC2
       env:
-        HOST: ${{ secrets.HOST_IP }}       # Host stored as GitHub Secret
-        USER: ${{ secrets.USER }}       # User stored as GitHub Secret
+        HOST: ${{ secrets.HOST }}
+        USER: ${{ secrets.USER }}
         KEY: ${{ secrets.AWS_PRIVATE_KEY }}
       run: |
-        # Copy the JAR file to the EC2 instance
         scp -o StrictHostKeyChecking=no -i "$KEY" target/*.jar $USER@$HOST:/home/$USER/eventFlowBackend.jar
-        
-        # SSH into the instance and deploy the application
         ssh -o StrictHostKeyChecking=no -i "$KEY" $USER@$HOST << EOF
-          # Kill any running instance of the application
           pkill -f eventFlowBackend.jar || true
-          
-          # Start the new application in the background
           nohup java -jar /home/$USER/eventFlowBackend.jar > /home/$USER/eventFlowBackend.log 2>&1 &
         EOF
