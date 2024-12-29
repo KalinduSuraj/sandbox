@@ -3,7 +3,7 @@ name: Backend CI/CD
 on:
   push:
     branches:
-      - test
+      - test-backend-ci-cd
 
 jobs:
   deploy:
@@ -14,11 +14,15 @@ jobs:
     - name: Checkout Repository
       uses: actions/checkout@v3
 
+    # Make Maven Wrapper Executable
+    - name: Make Maven Wrapper Executable
+      run: chmod +x ./mvnw
+
     # Set up Java environment
     - name: Set up JDK
       uses: actions/setup-java@v3
       with:
-        java-version: '17'
+        java-version: '21'
         distribution: 'temurin'
 
     # Build the Spring Boot application
@@ -28,8 +32,8 @@ jobs:
     # Deploy to AWS EC2
     - name: Deploy to AWS EC2
       env:
-        HOST: be.eventsflow.online 
-        USER: ubuntu        
+        HOST: ${{ secrets.HOST }} # Replace with your public IP or DNS
+        USER: ${{ secrets.USER }}       # Replace with your EC2 username
         KEY: ${{ secrets.AWS_PRIVATE_KEY }}
       run: |
         scp -o StrictHostKeyChecking=no -i "$KEY" target/*.jar $USER@$HOST:/home/$USER/eventFlowBackend.jar
