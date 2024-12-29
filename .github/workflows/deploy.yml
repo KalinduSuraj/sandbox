@@ -39,12 +39,17 @@ jobs:
         echo "${{ secrets.AWS_PRIVATE_KEY }}" > private_key.pem
         chmod 600 private_key.pem
 
+    # Add EC2 Host to Known Hosts
+    - name: Add EC2 Host to Known Hosts
+      run: |
+        ssh-keyscan -H ec2-13-49-75-219.eu-north-1.compute.amazonaws.com >> ~/.ssh/known_hosts
+
     # Debug SSH Connection
     - name: Debug SSH Connection
       env:
         HOST: ${{ secrets.HOST }}
         USER: ${{ secrets.USER }}
-      run: ssh -i private_key.pem ubuntu@ec2-13-49-75-219.eu-north-1.compute.amazonaws.com echo "SSH connection successful"
+      run: ssh -i private_key.pem $USER@$HOST echo "SSH connection successful"
 
     # Deploy to AWS EC2
     - name: Deploy to AWS EC2
